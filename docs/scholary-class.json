@@ -1,0 +1,34 @@
+{
+  "info": {
+    "name": "Scholary API - Clases",
+    "description": "Endpoints para gestionar las materias del profesor.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Crear Clase",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Programación Web II\",\n  \"subject\": \"Ingeniería de Software\",\n  \"group\": \"7A\",\n  \"description\": \"Curso avanzado de React y Node\",\n  \"color\": \"#7C3AED\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/classes", "host": ["{{base_url}}"], "path": ["api", "classes"] }
+      }
+    },
+    {
+      "name": "2. Listar mis Clases",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/api/classes", "host": ["{{base_url}}"], "path": ["api", "classes"] }
+      }
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 import express from 'express';
 import authRoutes from './auth.routes.js';
 import userRoutes from './user.routes.js';
+import classRoutes from './class.routes.js';
 
 const router = express.Router();
 
@@ -8,5 +9,7 @@ const router = express.Router();
 router.use('/auth', authRoutes);
 // Rutas de usuarios
 router.use('/users', userRoutes);
+// Rutas de clases
+router.use('/classes', classRoutes);
 
 export default router;
