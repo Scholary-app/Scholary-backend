@@ -1,0 +1,89 @@
+{
+  "info": {
+    "name": "Scholary API - Pruebas de Middlewares",
+    "description": "Pruebas para validar que los middlewares de Autenticación y Errores funcionan correctamente.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "pega_tu_token_valido_aqui",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. ÉXITO: Perfil con Token Válido",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt_token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/auth/me",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "me"]
+        },
+        "description": "Debería devolver 200 OK y los datos del usuario. Requiere que pongas tu token en la variable jwt_token de Bruno."
+      },
+      "response": []
+    },
+    {
+      "name": "2. ERROR: Perfil SIN Token",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/auth/me",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "me"]
+        },
+        "description": "Prueba del Auth Middleware. Debería devolver 401 Unauthorized porque no estamos enviando el header de Authorization."
+      },
+      "response": []
+    },
+    {
+      "name": "3. ERROR: Perfil con Token Falso",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer soy_un_token_inventado_12345",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/auth/me",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "me"]
+        },
+        "description": "Prueba del Auth Middleware. Debería devolver 403 Forbidden porque el token no fue firmado con nuestra clave secreta."
+      },
+      "response": []
+    },
+    {
+      "name": "4. ERROR: Ruta Inexistente (404)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/ruta-falsa-que-no-existe",
+          "host": ["{{base_url}}"],
+          "path": ["api", "ruta-falsa-que-no-existe"]
+        },
+        "description": "Prueba del Not Found Middleware. Debería devolver 404 con nuestro mensaje JSON personalizado."
+      },
+      "response": []
+    }
+  ]
+}

@@ -6,6 +6,8 @@ import session from 'express-session';
 import passport from './config/passport.js';
 import routes from './routes/index.routes.js';
 
+import { errorHandler, notFound } from './middlewares/error.middleware.js';
+
 const app = express();
 
 // Middlewares globales
@@ -15,7 +17,7 @@ app.use(express.json()); // Permite a la API recibir datos en formato JSON
 app.use(morgan('dev')); // Muestra un log de las peticiones en la terminal
 
 app.use(session({
-  secret: process.env.JWT_SECRET || 'secreto_de_sesion',
+  secret: process.env.JWT_SECRET,
   resave: false,
   saveUninitialized: false,
 }));
@@ -34,5 +36,11 @@ app.get('/api/health', (req, res) => {
 
 // Rutas centralizadas
 app.use('/api', routes);
+
+// Si la petición llega hasta aquí, es porque ninguna ruta coincidió
+app.use(notFound);
+
+// Si algún middleware o ruta hace un next(error), cae aquí
+app.use(errorHandler);
 
 export default app;
