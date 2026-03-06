@@ -1,0 +1,64 @@
+{
+  "info": {
+    "name": "Scholary API - Gestión de Usuarios",
+    "description": "Endpoints para gestionar el perfil y configuración del profesor.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Obtener Perfil",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/api/users/profile", "host": ["{{base_url}}"], "path": ["api", "users", "profile"] }
+      },
+      "response": []
+    },
+    {
+      "name": "2. Actualizar Perfil",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fullName\": \"Profesor React\",\n  \"phone\": \"+52 981 123 4567\",\n  \"institution\": \"Universidad de Prueba\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/users/profile", "host": ["{{base_url}}"], "path": ["api", "users", "profile"] }
+      },
+      "response": []
+    },
+    {
+      "name": "3. Actualizar Configuración (Tolerancia)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"lateToleranceMinutes\": 15,\n  \"applyThreeStrikesRule\": false\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/users/settings", "host": ["{{base_url}}"], "path": ["api", "users", "settings"] }
+      },
+      "response": []
+    },
+    {
+      "name": "4. ELIMINAR CUENTA ⚠️",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/api/users/account", "host": ["{{base_url}}"], "path": ["api", "users", "account"] },
+        "description": "Cuidado: Esto borrará tu usuario de la base de datos."
+      },
+      "response": []
+    }
+  ]
+}
