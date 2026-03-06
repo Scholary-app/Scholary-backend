@@ -1,0 +1,73 @@
+{
+  "info": {
+    "name": "Scholary API - Autenticación",
+    "description": "Endpoints para el flujo de autenticación y gestión de usuarios en Scholary.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "pega_tu_token_aqui",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Autenticación",
+      "item": [
+        {
+          "name": "1. Iniciar Login con Google",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/google",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "google"]
+            },
+            "description": "⚠️ **NOTA IMPORTANTE PARA POSTMAN:**\nComo este endpoint hace una redirección a la página web de Google, Postman te devolverá el código HTML de Google en lugar de un JSON.\n\n**Flujo correcto para probar:**\n1. Abre esta URL (`http://localhost:3000/api/auth/google`) en tu navegador web normal.\n2. Inicia sesión con Google.\n3. Copia el token gigante que aparece en la URL final (`?token=...`).\n4. Pega ese token en la pestaña **Variables** de esta colección de Postman (en la variable `jwt_token`)."
+          },
+          "response": []
+        },
+        {
+          "name": "2. Obtener mi Perfil (/me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "me"]
+            },
+            "description": "Devuelve los datos del usuario logueado. Requiere que la variable `jwt_token` esté configurada y el middleware `authenticateToken` implementado en el backend."
+          },
+          "response": []
+        },
+        {
+          "name": "3. Cerrar Sesión (/logout)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "logout"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
