@@ -1,41 +1,30 @@
+// src/index.js
+import 'dotenv/config'; // Carga automáticamente las variables del archivo .env
 import app from './app.js';
-import { config, validateConfig } from './config/constants.js';
+import prisma from './config/prisma.js';
 
-/**
- * Iniciar el servidor
- */
-const startServer = () => {
+// Definimos el puerto (usa el del .env o el 3000 por defecto)
+const PORT = process.env.PORT || 3000;
+
+async function startServer() {
   try {
-    // Validar configuración
-    validateConfig();
-    
-    // Iniciar servidor
-    app.listen(config.PORT, () => {
-      console.log('========================================');
-      console.log(' Scholary Backend Server');
-      console.log('========================================');
-      console.log(` Server running on port: ${config.PORT}`);
-      console.log(` Environment: ${config.NODE_ENV}`);
-      console.log(` URL: http://localhost:${config.PORT}`);
-      console.log(` Health check: http://localhost:${config.PORT}/health`);
-      console.log('========================================');
+    // Verificamos la conexión a la base de datos antes de levantar el servidor
+    await prisma.$connect();
+    console.log(' Conectado a la base de datos PostgreSQL (Supabase) exitosamente.');
+
+    // Levantamos el servidor
+    app.listen(PORT, () => {
+      console.log(` Servidor de Scholary corriendo en: http://localhost:${PORT}`);
+      console.log(` Health check disponible en: http://localhost:${PORT}/api/health`);
     });
+
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    console.error('🔴 Error fatal al iniciar el servidor o conectar a la BD:', error);
+    // Desconectamos Prisma en caso de error y cerramos el proceso
+    await prisma.$disconnect();
     process.exit(1);
   }
-};
+}
 
-// Manejo de errores no capturados
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  process.exit(1);
-});
-
-process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
-  process.exit(1);
-});
-
-// Iniciar servidor
+// Inicializar todo
 startServer();
