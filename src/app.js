@@ -10,10 +10,7 @@ import { config } from './config/constants.js';
  */
 const app = express();
 
-// ======================
 // MIDDLEWARES DE SEGURIDAD
-// ======================
-
 // Helmet - Configuración de headers de seguridad
 app.use(helmet());
 
@@ -33,8 +30,6 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
-
-// ======================
 // MIDDLEWARES DE PARSEO
 // ======================
 
@@ -82,13 +77,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// TODO: Importar y usar rutas de la API
-// import authRoutes from './routes/auth.routes.js';
-// app.use('/api/auth', authRoutes);
-
-// ======================
 // MANEJO DE ERRORES
-// ======================
 
 // Ruta no encontrada - 404
 app.use((req, res) => {

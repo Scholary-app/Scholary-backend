@@ -12,12 +12,12 @@ const startServer = () => {
     // Iniciar servidor
     app.listen(config.PORT, () => {
       console.log('========================================');
-      console.log('🚀 Scholary Backend Server');
+      console.log(' Scholary Backend Server');
       console.log('========================================');
-      console.log(`📡 Server running on port: ${config.PORT}`);
-      console.log(`🌍 Environment: ${config.NODE_ENV}`);
-      console.log(`🔗 URL: http://localhost:${config.PORT}`);
-      console.log(`✅ Health check: http://localhost:${config.PORT}/health`);
+      console.log(` Server running on port: ${config.PORT}`);
+      console.log(` Environment: ${config.NODE_ENV}`);
+      console.log(` URL: http://localhost:${config.PORT}`);
+      console.log(` Health check: http://localhost:${config.PORT}/health`);
       console.log('========================================');
     });
   } catch (error) {

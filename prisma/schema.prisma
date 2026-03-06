@@ -1,0 +1,165 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id                      String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  email                   String    @unique @db.VarChar(255)
+  passwordHash            String    @map("password_hash") @db.VarChar(255)
+  fullName                String    @map("full_name") @db.VarChar(255)
+  avatarUrl               String?   @map("avatar_url") @db.Text
+  phone                   String?   @db.VarChar(20)
+  institution             String?   @db.VarChar(255)
+  lateToleranceMinutes    Int       @default(10) @map("late_tolerance_minutes")
+  applyThreeStrikesRule   Boolean   @default(true) @map("apply_three_strikes_rule")
+  createdAt               DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt               DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
+  lastLogin               DateTime? @map("last_login") @db.Timestamptz()
+  
+  classes                 Class[]
+  students                Student[]
+  attendanceSessions      AttendanceSession[] @relation("SessionCreator")
+  
+  @@index([email])
+  @@map("users")
+}
+
+model Class {
+  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  name        String    @db.VarChar(255)
+  subject     String?   @db.VarChar(255)
+  group       String?   @db.VarChar(50)
+  description String?   @db.Text
+  color       String    @default("#7C3AED") @db.VarChar(7)
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
+  
+  user                User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  schedules           Schedule[]
+  classStudents       ClassStudent[]
+  attendanceSessions  AttendanceSession[]
+  
+  @@index([userId])
+  @@index([active])
+  @@map("classes")
+}
+
+model Student {
+  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  studentId   String    @map("student_id") @db.VarChar(50)
+  fullName    String    @map("full_name") @db.VarChar(255)
+  email       String?   @db.VarChar(255)
+  phone       String?   @db.VarChar(20)
+  gender      String?   @db.VarChar(10)
+  qrCode      String?   @unique @map("qr_code") @db.VarChar(255)
+  avatarUrl   String?   @map("avatar_url") @db.Text
+  notes       String?   @db.Text
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
+  
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  classStudents     ClassStudent[]
+  attendanceRecords AttendanceRecord[]
+  
+  @@index([userId])
+  @@index([studentId])
+  @@map("students")
+}
+
+model ClassStudent {
+  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  classId    String   @map("class_id") @db.Uuid
+  studentId  String   @map("student_id") @db.Uuid
+  enrolledAt DateTime @default(now()) @map("enrolled_at") @db.Timestamptz()
+  status     String   @default("active") @db.VarChar(20)
+  
+  class   Class   @relation(fields: [classId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  @@unique([classId, studentId], name: "unique_class_student")
+  @@index([classId])
+  @@index([studentId])
+  @@map("class_students")
+}
+
+model Schedule {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  classId     String   @map("class_id") @db.Uuid
+  dayOfWeek   String   @map("day_of_week") @db.VarChar(10)
+  startTime   DateTime @map("start_time") @db.Time()
+  endTime     DateTime @map("end_time") @db.Time()
+  classroom   String?  @db.VarChar(100)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  
+  class Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+  
+  @@index([classId])
+  @@index([dayOfWeek])
+  @@map("schedules")
+}
+
+model AttendanceSession {
+  id              String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  classId         String   @map("class_id") @db.Uuid
+  sessionDate     DateTime @map("session_date") @db.Date
+  sessionTime     DateTime? @map("session_time") @db.Time()
+  method          String   @db.VarChar(20)
+  status          String   @default("completed") @db.VarChar(20)
+  totalStudents   Int      @default(0) @map("total_students")
+  presentCount    Int      @default(0) @map("present_count")
+  absentCount     Int      @default(0) @map("absent_count")
+  lateCount       Int      @default(0) @map("late_count")
+  justifiedCount  Int      @default(0) @map("justified_count")
+  notes           String?  @db.Text
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  createdBy       String   @map("created_by") @db.Uuid
+  
+  class             Class              @relation(fields: [classId], references: [id], onDelete: Cascade)
+  creator           User               @relation("SessionCreator", fields: [createdBy], references: [id])
+  attendanceRecords AttendanceRecord[]
+  
+  @@unique([classId, sessionDate], name: "unique_class_session_date")
+  @@index([classId])
+  @@index([sessionDate])
+  @@index([createdBy])
+  @@map("attendance_sessions")
+}
+
+model AttendanceRecord {
+  id                  String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  attendanceSessionId String    @map("attendance_session_id") @db.Uuid
+  studentId           String    @map("student_id") @db.Uuid
+  status              String    @db.VarChar(20)
+  checkInTime         DateTime? @map("check_in_time") @db.Timestamptz()
+  notes               String?   @db.Text
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt           DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
+  
+  attendanceSession AttendanceSession @relation(fields: [attendanceSessionId], references: [id], onDelete: Cascade)
+  student           Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  @@unique([attendanceSessionId, studentId], name: "unique_session_student")
+  @@index([attendanceSessionId])
+  @@index([studentId])
+  @@index([status])
+  @@map("attendance_records")
+}
