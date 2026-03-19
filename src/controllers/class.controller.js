@@ -24,7 +24,16 @@ export const getClassById = async (req, res, next) => {
   try {
     const { id } = req.params;
     const classroom = await prisma.class.findFirst({
-      where: { id, userId: req.user.userId }
+      where: { 
+        id, 
+        userId: req.user.userId,
+        active: true 
+      },
+      include: {
+        _count: {
+          select: { classStudents: true } 
+        }
+      }
     });
 
     if (!classroom) return res.status(404).json({ success: false, error: 'Clase no encontrada' });

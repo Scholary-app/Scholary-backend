@@ -29,6 +29,41 @@
         ],
         "url": { "raw": "{{base_url}}/api/classes", "host": ["{{base_url}}"], "path": ["api", "classes"] }
       }
+    },
+    {
+      "name": "3. Obtener Clase por ID (Prueba de Corrección)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/api/classes/AQUI_PON_EL_ID_DE_LA_CLASE", "host": ["{{base_url}}"], "path": ["api", "classes", "AQUI_PON_EL_ID_DE_LA_CLASE"] }
+      }
+    },
+    {
+      "name": "4. Actualizar Clase",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Programación Web II (Actualizada)\",\n  \"color\": \"#FF5733\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/classes/AQUI_PON_EL_ID_DE_LA_CLASE", "host": ["{{base_url}}"], "path": ["api", "classes", "AQUI_PON_EL_ID_DE_LA_CLASE"] }
+      }
+    },
+    {
+      "name": "5. Eliminar Clase (Soft Delete)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/api/classes/AQUI_PON_EL_ID_DE_LA_CLASE", "host": ["{{base_url}}"], "path": ["api", "classes", "AQUI_PON_EL_ID_DE_LA_CLASE"] }
+      }
     }
   ]
 }
