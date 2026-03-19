@@ -1,0 +1,70 @@
+{
+  "info": {
+    "name": "Scholary API - Sesiones de Asistencia",
+    "description": "Endpoints para gestionar los pases de lista de cada clase.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Crear Sesión de Pase de Lista",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sessionDate\": \"2026-03-20\",\n  \"sessionTime\": \"08:30\",\n  \"method\": \"manual\",\n  \"notes\": \"Clase normal de repaso\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/classes/AQUI_PON_EL_ID_DE_LA_CLASE/attendance-sessions", "host": ["{{base_url}}"], "path": ["api", "classes", "AQUI_PON_EL_ID_DE_LA_CLASE", "attendance-sessions"] }
+      }
+    },
+    {
+      "name": "2. Listar Sesiones de la Clase",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/api/classes/AQUI_PON_EL_ID_DE_LA_CLASE/attendance-sessions", "host": ["{{base_url}}"], "path": ["api", "classes", "AQUI_PON_EL_ID_DE_LA_CLASE", "attendance-sessions"] }
+      }
+    },
+    {
+      "name": "3. Obtener Sesión Detallada (ID)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/api/attendance-sessions/AQUI_PON_EL_ID_DE_LA_SESION", "host": ["{{base_url}}"], "path": ["api", "attendance-sessions", "AQUI_PON_EL_ID_DE_LA_SESION"] },
+        "description": "Este endpoint trae todos los registros de los alumnos que asistieron."
+      }
+    },
+    {
+      "name": "4. Finalizar / Actualizar Sesión",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"completed\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/attendance-sessions/AQUI_PON_EL_ID_DE_LA_SESION", "host": ["{{base_url}}"], "path": ["api", "attendance-sessions", "AQUI_PON_EL_ID_DE_LA_SESION"] }
+      }
+    },
+    {
+      "name": "5. Eliminar Sesión",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/api/attendance-sessions/AQUI_PON_EL_ID_DE_LA_SESION", "host": ["{{base_url}}"], "path": ["api", "attendance-sessions", "AQUI_PON_EL_ID_DE_LA_SESION"] }
+      }
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import userRoutes from './user.routes.js';
 import classRoutes from './class.routes.js';
 import studentRoutes from './student.routes.js';
 import scheduleRoutes from './schedule.routes.js';
+import sessionRoutes from './attendance-session.routes.js';
 
 
 const router = express.Router();
@@ -18,5 +19,7 @@ router.use('/classes', classRoutes);
 router.use('/students', studentRoutes);
 // Rutas de horarios
 router.use('/schedules', scheduleRoutes);
+// Rutas de sesiones de asistencia
+router.use('/attendance-sessions', sessionRoutes);
 
 export default router;

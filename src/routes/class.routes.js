@@ -5,8 +5,10 @@ import { createClassSchema, updateClassSchema } from '../schemas/class.schema.js
 import { enrollStudentsSchema } from '../schemas/enrollment.schema.js';
 import * as classController from '../controllers/class.controller.js';
 import { createScheduleSchema } from '../schemas/schedule.schema.js';
+import { createSessionSchema } from '../schemas/attendance-session.schema.js';
 import * as enrollmentController from '../controllers/enrollment.controller.js';
 import * as scheduleController from '../controllers/schedule.controller.js';
+import * as sessionController from '../controllers/attendance-session.controller.js';
 
 const router = express.Router();
 
@@ -26,5 +28,9 @@ router.delete('/:classId/students/:studentId', enrollmentController.unenrollStud
 // --- RUTAS DE HORARIOS (Ligados a la clase) ---
 router.post('/:classId/schedules', validate(createScheduleSchema), scheduleController.createSchedule);
 router.get('/:classId/schedules', scheduleController.getClassSchedules);
+
+// --- RUTAS DE SESIONES DE ASISTENCIA ---
+router.post('/:classId/attendance-sessions', validate(createSessionSchema), sessionController.createSession);
+router.get('/:classId/attendance-sessions', sessionController.getClassSessions);
 
 export default router;
