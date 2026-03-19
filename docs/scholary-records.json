@@ -1,0 +1,64 @@
+{
+  "info": {
+    "name": "Scholary API - Registros (Pase de Lista)",
+    "description": "Endpoints para registrar alumnos y calcular retardos.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Registrar Asistencia (Manual)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentId\": \"AQUI_PON_EL_ID_DEL_ESTUDIANTE\",\n  \"status\": \"present\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/attendance-sessions/AQUI_PON_EL_ID_DE_LA_SESION/records", "host": ["{{base_url}}"], "path": ["api", "attendance-sessions", "AQUI_PON_EL_ID_DE_LA_SESION", "records"] }
+      }
+    },
+    {
+      "name": "2. Escanear Código QR",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"qrCode\": \"SCHOLARY_STUDENT_pega_aqui_el_uuid_del_qr\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/attendance-sessions/AQUI_PON_EL_ID_DE_LA_SESION/scan", "host": ["{{base_url}}"], "path": ["api", "attendance-sessions", "AQUI_PON_EL_ID_DE_LA_SESION", "scan"] }
+      }
+    },
+    {
+      "name": "3. Listar Asistencias de la Sesión",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/api/attendance-sessions/AQUI_PON_EL_ID_DE_LA_SESION/records", "host": ["{{base_url}}"], "path": ["api", "attendance-sessions", "AQUI_PON_EL_ID_DE_LA_SESION", "records"] }
+      }
+    },
+    {
+      "name": "4. Editar un Registro",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"justified\",\n  \"notes\": \"Trajo receta médica\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/attendance-records/AQUI_PON_EL_ID_DEL_REGISTRO", "host": ["{{base_url}}"], "path": ["api", "attendance-records", "AQUI_PON_EL_ID_DEL_REGISTRO"] }
+      }
+    }
+  ]
+}
