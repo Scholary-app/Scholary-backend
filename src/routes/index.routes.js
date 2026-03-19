@@ -3,6 +3,7 @@ import authRoutes from './auth.routes.js';
 import userRoutes from './user.routes.js';
 import classRoutes from './class.routes.js';
 import studentRoutes from './student.routes.js';
+import scheduleRoutes from './schedule.routes.js';
 
 
 const router = express.Router();
@@ -15,5 +16,7 @@ router.use('/users', userRoutes);
 router.use('/classes', classRoutes);
 // Rutas de estudiantes
 router.use('/students', studentRoutes);
+// Rutas de horarios
+router.use('/schedules', scheduleRoutes);
 
 export default router;

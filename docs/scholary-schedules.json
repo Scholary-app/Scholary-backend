@@ -1,0 +1,75 @@
+{
+  "info": {
+    "name": "Scholary API - Horarios",
+    "description": "Endpoints para gestionar los días y horas de clases.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Crear Horario",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"dayOfWeek\": \"Lunes\",\n  \"startTime\": \"08:00\",\n  \"endTime\": \"10:00\",\n  \"classroom\": \"Aula 301\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/classes/AQUI_PON_EL_ID_DE_LA_CLASE/schedules", "host": ["{{base_url}}"], "path": ["api", "classes", "AQUI_PON_EL_ID_DE_LA_CLASE", "schedules"] }
+      }
+    },
+    {
+      "name": "2. ERROR: Hora fin menor a hora inicio",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"dayOfWeek\": \"Miércoles\",\n  \"startTime\": \"12:00\",\n  \"endTime\": \"09:00\",\n  \"classroom\": \"Aula 301\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/classes/AQUI_PON_EL_ID_DE_LA_CLASE/schedules", "host": ["{{base_url}}"], "path": ["api", "classes", "AQUI_PON_EL_ID_DE_LA_CLASE", "schedules"] },
+        "description": "Esto debería devolver un error 400 gracias a la validación de Zod."
+      }
+    },
+    {
+      "name": "3. Listar Horarios de Clase",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/api/classes/AQUI_PON_EL_ID_DE_LA_CLASE/schedules", "host": ["{{base_url}}"], "path": ["api", "classes", "AQUI_PON_EL_ID_DE_LA_CLASE", "schedules"] }
+      }
+    },
+    {
+      "name": "4. Actualizar Horario",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"endTime\": \"10:30\",\n  \"classroom\": \"Laboratorio A\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/schedules/AQUI_PON_EL_ID_DEL_HORARIO", "host": ["{{base_url}}"], "path": ["api", "schedules", "AQUI_PON_EL_ID_DEL_HORARIO"] }
+      }
+    },
+    {
+      "name": "5. Eliminar Horario",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/api/schedules/AQUI_PON_EL_ID_DEL_HORARIO", "host": ["{{base_url}}"], "path": ["api", "schedules", "AQUI_PON_EL_ID_DEL_HORARIO"] }
+      }
+    }
+  ]
+}
