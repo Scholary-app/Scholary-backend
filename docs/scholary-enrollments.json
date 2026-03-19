@@ -1,0 +1,44 @@
+{
+  "info": {
+    "name": "Scholary API - Inscripciones",
+    "description": "Endpoints para inscribir y desinscribir alumnos a las clases.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Inscribir Alumnos a Clase",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentIds\": [\n    \"AQUI_PON_EL_ID_DE_UN_ESTUDIANTE\",\n    \"AQUI_PON_OTRO_ID_SI_QUIERES\"\n  ]\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/classes/AQUI_PON_EL_ID_DE_LA_CLASE/students", "host": ["{{base_url}}"], "path": ["api", "classes", "AQUI_PON_EL_ID_DE_LA_CLASE", "students"] }
+      }
+    },
+    {
+      "name": "2. Listar Alumnos de una Clase",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/api/classes/AQUI_PON_EL_ID_DE_LA_CLASE/students", "host": ["{{base_url}}"], "path": ["api", "classes", "AQUI_PON_EL_ID_DE_LA_CLASE", "students"] }
+      }
+    },
+    {
+      "name": "3. Desinscribir Alumno",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/api/classes/AQUI_PON_EL_ID_DE_LA_CLASE/students/AQUI_PON_EL_ID_DEL_ESTUDIANTE", "host": ["{{base_url}}"], "path": ["api", "classes", "AQUI_PON_EL_ID_DE_LA_CLASE", "students", "AQUI_PON_EL_ID_DEL_ESTUDIANTE"] }
+      }
+    }
+  ]
+}
