@@ -1,0 +1,69 @@
+{
+  "info": {
+    "name": "Scholary API - Estudiantes",
+    "description": "Endpoints para gestionar alumnos y generar códigos QR.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Crear Estudiante",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentId\": \"20230001\",\n  \"fullName\": \"Juan Pérez García\",\n  \"email\": \"juan.perez@email.com\",\n  \"gender\": \"male\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/students", "host": ["{{base_url}}"], "path": ["api", "students"] }
+      }
+    },
+    {
+      "name": "2. Listar Estudiantes",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/api/students", "host": ["{{base_url}}"], "path": ["api", "students"] }
+      }
+    },
+    {
+      "name": "3. Obtener Código QR (Base64)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/api/students/AQUI_PON_EL_ID_DEL_ESTUDIANTE/qr", "host": ["{{base_url}}"], "path": ["api", "students", "AQUI_PON_EL_ID_DEL_ESTUDIANTE", "qr"] }
+      }
+    },
+    {
+      "name": "4. Actualizar Estudiante",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fullName\": \"Juan Pérez García (Actualizado)\",\n  \"phone\": \"+529811234567\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/students/AQUI_PON_EL_ID_DEL_ESTUDIANTE", "host": ["{{base_url}}"], "path": ["api", "students", "AQUI_PON_EL_ID_DEL_ESTUDIANTE"] }
+      }
+    },
+    {
+      "name": "5. Eliminar Estudiante",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/api/students/AQUI_PON_EL_ID_DEL_ESTUDIANTE", "host": ["{{base_url}}"], "path": ["api", "students", "AQUI_PON_EL_ID_DEL_ESTUDIANTE"] }
+      }
+    }
+  ]
+}
