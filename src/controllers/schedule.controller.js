@@ -17,6 +17,130 @@ const formatScheduleResponse = (schedule) => ({
   endTime: formatTime(schedule.endTime)
 });
 
+const formatDateInMerida = (dateObj) => {
+  if (!dateObj) return null;
+  return dateObj.toLocaleDateString('en-CA', { timeZone: 'America/Merida' });
+};
+
+const getDayNameInMerida = (dateStr) => {
+  const date = new Date(`${dateStr}T12:00:00-06:00`);
+  const dayName = date.toLocaleDateString('es-MX', { weekday: 'long', timeZone: 'America/Merida' });
+  return dayName.charAt(0).toUpperCase() + dayName.slice(1);
+};
+
+const getTodayMerida = () => formatDateInMerida(new Date());
+
+const buildSessionDateRange = (dateStr) => {
+  const start = new Date(`${dateStr}T00:00:00-06:00`);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 1);
+  return { start, end };
+};
+
+// GET /api/schedules/day?date=YYYY-MM-DD
+export const getDailySchedule = async (req, res, next) => {
+  try {
+    const userId = req.user.userId;
+    const requestedDate = typeof req.query.date === 'string' ? req.query.date : null;
+    const dateStr = requestedDate || getTodayMerida();
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      return res.status(400).json({ success: false, error: 'El parámetro date debe tener formato YYYY-MM-DD' });
+    }
+
+    const dayOfWeek = getDayNameInMerida(dateStr);
+
+    const schedules = await prisma.schedule.findMany({
+      where: {
+        dayOfWeek,
+        active: true,
+        class: {
+          userId,
+          active: true,
+        },
+      },
+      include: {
+        class: {
+          select: {
+            id: true,
+            name: true,
+            group: true,
+            _count: {
+              select: { classStudents: true },
+            },
+          },
+        },
+      },
+      orderBy: { startTime: 'asc' },
+    });
+
+    const classIds = [...new Set(schedules.map((schedule) => schedule.class.id))];
+    const { start, end } = buildSessionDateRange(dateStr);
+
+    const sessions = await prisma.attendanceSession.findMany({
+      where: {
+        classId: { in: classIds },
+        sessionDate: {
+          gte: start,
+          lt: end,
+        },
+      },
+      select: {
+        id: true,
+        classId: true,
+        status: true,
+        presentCount: true,
+        lateCount: true,
+        absentCount: true,
+        justifiedCount: true,
+      },
+    });
+
+    const sessionsByClassId = new Map(sessions.map((session) => [session.classId, session]));
+
+    const items = schedules.map((schedule) => {
+      const session = sessionsByClassId.get(schedule.class.id);
+      const attendanceTotal = session
+        ? session.presentCount + session.lateCount + session.absentCount + session.justifiedCount
+        : 0;
+      const isCompleted = !!session && (session.status === 'completed' || attendanceTotal > 0);
+
+      return {
+        id: schedule.id,
+        classId: schedule.class.id,
+        sessionId: session?.id || null,
+        subject: schedule.class.name,
+        group: schedule.class.group || 'Grupo A',
+        totalStudents: schedule.class._count.classStudents,
+        dayOfWeek: schedule.dayOfWeek,
+        time: formatTime(schedule.startTime),
+        endTime: formatTime(schedule.endTime),
+        status: isCompleted ? 'completed' : 'pending',
+        attendance: session
+          ? {
+              present: session.presentCount,
+              late: session.lateCount,
+              absent: session.absentCount,
+              justified: session.justifiedCount,
+            }
+          : null,
+      };
+    });
+
+    const pendingCount = items.filter((item) => item.status === 'pending').length;
+
+    res.json({
+      success: true,
+      date: dateStr,
+      dayOfWeek,
+      pendingCount,
+      items,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // GET /api/classes/:classId/schedules
 export const getClassSchedules = async (req, res, next) => {
   try {

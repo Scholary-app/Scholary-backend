@@ -59,6 +59,22 @@ export const createRecord = async (req, res, next) => {
     if (!session || session.class.userId !== req.user.userId) {
       return res.status(404).json({ success: false, error: 'Sesión no encontrada o sin permisos' });
     }
+
+    const classEnrollment = await prisma.classStudent.findFirst({
+      where: {
+        classId: session.classId,
+        studentId,
+        status: 'active',
+      },
+      select: { id: true },
+    });
+
+    if (!classEnrollment) {
+      return res.status(400).json({
+        success: false,
+        error: 'El alumno escaneado no pertenece a esta clase',
+      });
+    }
     
     // 2. Determinar el día de la semana asegurando la zona horaria
     const dateStr = session.sessionDate.toLocaleDateString('en-CA', { timeZone: 'America/Merida' });
@@ -88,7 +104,14 @@ export const createRecord = async (req, res, next) => {
     
     res.status(201).json({ success: true, record });
   } catch (error) {
-    next(error); // Atrapa el P2002 si el alumno ya fue registrado hoy
+    if (error?.code === 'P2002') {
+      return res.status(409).json({
+        success: false,
+        error: 'Este alumno ya fue registrado en esta sesión',
+      });
+    }
+
+    next(error);
   }
 };
 

@@ -9,6 +9,7 @@ const router = express.Router();
 router.use(authenticateToken);
 
 // --- RUTAS DE HORARIOS (Directas por ID) ---
+router.get('/day', scheduleController.getDailySchedule);
 router.put('/:id', validate(updateScheduleSchema), scheduleController.updateSchedule);
 router.delete('/:id', scheduleController.deleteSchedule);
 

@@ -22,6 +22,19 @@ passport.use(new GoogleStrategy({
             fullName: profile.displayName,
             avatarUrl: profile.photos[0]?.value,
             passwordHash: 'GOOGLE_OAUTH', // No usa password local
+            googleAccessToken: accessToken,
+            googleRefreshToken: refreshToken,
+            googleTokenExpiresAt: new Date(Date.now() + 3600 * 1000) // Típicamente 1 hora
+          }
+        });
+      } else {
+        // Si el usuario ya existe, actualizar tokens
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            googleAccessToken: accessToken,
+            googleRefreshToken: refreshToken,
+            googleTokenExpiresAt: new Date(Date.now() + 3600 * 1000)
           }
         });
       }
