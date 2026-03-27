@@ -24,6 +24,9 @@ model User {
   institution             String?   @db.VarChar(255)
   lateToleranceMinutes    Int       @default(10) @map("late_tolerance_minutes")
   applyThreeStrikesRule   Boolean   @default(true) @map("apply_three_strikes_rule")
+  googleAccessToken       String?   @map("google_access_token") @db.Text
+  googleRefreshToken      String?   @map("google_refresh_token") @db.Text
+  googleTokenExpiresAt    DateTime? @map("google_token_expires_at") @db.Timestamptz()
   createdAt               DateTime  @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt               DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
   lastLogin               DateTime? @map("last_login") @db.Timestamptz()
