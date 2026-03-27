@@ -8,13 +8,30 @@ export const getAllClasses = async (req, res, next) => {
         active: true // Solo mostramos las activas por defecto
       },
       include: {
+        schedules: {
+          where: { active: true },
+          select: { id: true }
+        },
         _count: {
           select: { classStudents: true } // Conteo automático de estudiantes
         }
       },
       orderBy: { createdAt: 'desc' }
     });
-    res.json({ success: true, classes });
+
+    const classesWithScheduleCount = classes.map((classItem) => {
+      const { schedules, ...rest } = classItem;
+
+      return {
+        ...rest,
+        _count: {
+          ...rest._count,
+          schedules: schedules.length,
+        },
+      };
+    });
+
+    res.json({ success: true, classes: classesWithScheduleCount });
   } catch (error) {
     next(error);
   }
@@ -30,6 +47,10 @@ export const getClassById = async (req, res, next) => {
         active: true 
       },
       include: {
+        schedules: {
+          where: { active: true },
+          select: { id: true }
+        },
         _count: {
           select: { classStudents: true } 
         }
@@ -38,7 +59,18 @@ export const getClassById = async (req, res, next) => {
 
     if (!classroom) return res.status(404).json({ success: false, error: 'Clase no encontrada' });
 
-    res.json({ success: true, class: classroom });
+    const { schedules, ...restClassroom } = classroom;
+
+    res.json({
+      success: true,
+      class: {
+        ...restClassroom,
+        _count: {
+          ...restClassroom._count,
+          schedules: schedules.length,
+        },
+      },
+    });
   } catch (error) {
     next(error);
   }

@@ -6,15 +6,45 @@ import { authenticateToken } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
+function parseOAuthState(rawState) {
+  try {
+    if (!rawState || typeof rawState !== 'string') {
+      return { client: 'web', redirectUri: '' };
+    }
+
+    const decoded = Buffer.from(rawState, 'base64url').toString('utf8');
+    const parsed = JSON.parse(decoded);
+
+    return {
+      client: parsed.client === 'mobile' ? 'mobile' : 'web',
+      redirectUri: typeof parsed.redirectUri === 'string' ? parsed.redirectUri : '',
+    };
+  } catch {
+    return { client: rawState === 'mobile' ? 'mobile' : 'web', redirectUri: '' };
+  }
+}
+
 // Iniciar autenticación con Google
 router.get('/google', (req, res, next) => {
-  // Capturamos si viene de móvil para pasarlo en el parámetro 'state'
   const isMobile = req.query.mobile === 'true';
-  const state = isMobile ? 'mobile' : 'web';
+  const statePayload = {
+    client: isMobile ? 'mobile' : 'web',
+    redirectUri: isMobile && typeof req.query.redirect_uri === 'string' ? req.query.redirect_uri : '',
+  };
+  const state = Buffer.from(JSON.stringify(statePayload)).toString('base64url');
   
   passport.authenticate('google', { 
-    scope: ['profile', 'email'],
-    state: state // Google nos devolverá este mismo valor en el callback
+    scope: [
+      'profile',
+      'email',
+      'https://www.googleapis.com/auth/classroom.courses.readonly',
+      'https://www.googleapis.com/auth/classroom.rosters.readonly',
+      'https://www.googleapis.com/auth/classroom.profile.emails',
+      'https://www.googleapis.com/auth/classroom.profile.photos',
+    ],
+    state,
+    accessType: 'offline',
+    prompt: 'consent',
   })(req, res, next);
 });
 
@@ -33,15 +63,14 @@ router.get('/google/callback',
         { expiresIn: '7d' }
       );
       
-      // Detectar si es móvil leyendo el parámetro 'state' que Google nos devuelve
-      const state = req.query.state;
-      const isMobile = state === 'mobile';
+      const state = parseOAuthState(req.query.state);
+      const isMobile = state.client === 'mobile';
       
       if (isMobile) {
-        // Redirección para App Móvil (Deep Link)
-        res.redirect(`scholary://auth-callback?token=${token}`);
+        const redirectBase = state.redirectUri || 'scholary://auth-callback';
+        const separator = redirectBase.includes('?') ? '&' : '?';
+        res.redirect(`${redirectBase}${separator}token=${encodeURIComponent(token)}`);
       } else {
-        // Redirección para Frontend Web
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:8081';
         res.redirect(`${frontendUrl}/auth-success?token=${token}`);
       }

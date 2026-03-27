@@ -11,8 +11,12 @@ const parseTime = (timeStr) => timeStr ? new Date(`1970-01-01T${timeStr}:00-06:0
 // 3. Lee la BD y devuelve "YYYY-MM-DD" exacto en Campeche
 const formatDate = (dateObj) => {
   if (!dateObj) return null;
-  // 'en-CA' es un formato nativo que siempre devuelve YYYY-MM-DD
-  return dateObj.toLocaleDateString('en-CA', { timeZone: 'America/Merida' }); 
+  // sessionDate es un campo DATE (sin hora). Si se aplica zona horaria aquí,
+  // puede desplazarse al día anterior en clientes con UTC-6.
+  const year = dateObj.getUTCFullYear();
+  const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(dateObj.getUTCDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };
 
 // 4. Lee la BD y devuelve "HH:MM" (Formato 24h) exacto en Campeche
@@ -31,6 +35,71 @@ const formatSessionResponse = (session) => ({
   sessionDate: formatDate(session.sessionDate),
   sessionTime: formatTime(session.sessionTime)
 });
+
+const getSessionCounters = async (attendanceSessionId) => {
+  const grouped = await prisma.attendanceRecord.groupBy({
+    by: ['status'],
+    where: { attendanceSessionId },
+    _count: true,
+  });
+
+  let presentCount = 0;
+  let absentCount = 0;
+  let lateCount = 0;
+  let justifiedCount = 0;
+
+  grouped.forEach((row) => {
+    if (row.status === 'present') presentCount = row._count;
+    if (row.status === 'absent') absentCount = row._count;
+    if (row.status === 'late') lateCount = row._count;
+    if (row.status === 'justified') justifiedCount = row._count;
+  });
+
+  return { presentCount, absentCount, lateCount, justifiedCount };
+};
+
+const completeSessionWithAutoAbsences = async (sessionId, classId, notes) => {
+  const classStudents = await prisma.classStudent.findMany({
+    where: { classId },
+    select: { studentId: true },
+  });
+
+  const existingRecords = await prisma.attendanceRecord.findMany({
+    where: { attendanceSessionId: sessionId },
+    select: { studentId: true },
+  });
+
+  const registeredStudentIds = new Set(existingRecords.map((record) => record.studentId));
+  const missingStudentIds = classStudents
+    .map((row) => row.studentId)
+    .filter((studentId) => !registeredStudentIds.has(studentId));
+
+  if (missingStudentIds.length > 0) {
+    await prisma.attendanceRecord.createMany({
+      data: missingStudentIds.map((studentId) => ({
+        attendanceSessionId: sessionId,
+        studentId,
+        status: 'absent',
+        checkInTime: null,
+        notes: 'Ausencia automática al finalizar pase de lista QR',
+      })),
+      skipDuplicates: true,
+    });
+  }
+
+  const counters = await getSessionCounters(sessionId);
+
+  const completed = await prisma.attendanceSession.update({
+    where: { id: sessionId },
+    data: {
+      status: 'completed',
+      notes: notes ?? null,
+      ...counters,
+    },
+  });
+
+  return completed;
+};
 // --------------------------------------------------------
 
 // POST /api/classes/:classId/attendance-sessions
@@ -122,6 +191,7 @@ export const getSessionById = async (req, res, next) => {
 export const updateSession = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const { status, notes } = req.body;
 
     // Verificar propiedad
     const existing = await prisma.attendanceSession.findFirst({
@@ -130,10 +200,16 @@ export const updateSession = async (req, res, next) => {
 
     if (!existing) return res.status(404).json({ success: false, error: 'Sesión no encontrada' });
 
-    const updated = await prisma.attendanceSession.update({
-      where: { id },
-      data: req.body
-    });
+    let updated;
+
+    if (status === 'completed') {
+      updated = await completeSessionWithAutoAbsences(id, existing.classId, notes);
+    } else {
+      updated = await prisma.attendanceSession.update({
+        where: { id },
+        data: req.body,
+      });
+    }
 
     res.json({ success: true, session: formatSessionResponse(updated) });
   } catch (error) {
