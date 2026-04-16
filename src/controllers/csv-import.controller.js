@@ -157,6 +157,7 @@ export const importClassesFromCsv = async (req, res, next) => {
     try {
       const csvContent = req.file.buffer.toString('utf-8');
       records = parse(csvContent, {
+        bom: true,
         columns: true,
         skip_empty_lines: false,
         trim: true,
