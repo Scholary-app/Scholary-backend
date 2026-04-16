@@ -5,12 +5,14 @@ import { createClassSchema, updateClassSchema } from '../schemas/class.schema.js
 import { enrollStudentsSchema } from '../schemas/enrollment.schema.js';
 import * as classController from '../controllers/class.controller.js';
 import * as classroomImportController from '../controllers/classroom-import.controller.js';
+import * as csvImportController from '../controllers/csv-import.controller.js';
 import * as studentController from '../controllers/student.controller.js';
 import { createScheduleSchema } from '../schemas/schedule.schema.js';
 import { createSessionSchema } from '../schemas/attendance-session.schema.js';
 import * as enrollmentController from '../controllers/enrollment.controller.js';
 import * as scheduleController from '../controllers/schedule.controller.js';
 import * as sessionController from '../controllers/attendance-session.controller.js';
+import { csvUpload } from '../middlewares/multer.middleware.js';
 
 const router = express.Router();
 
@@ -19,6 +21,9 @@ router.use(authenticateToken); // Protección global para todas las rutas de cla
 // --- RUTAS DE IMPORTACIÓN DE GOOGLE CLASSROOM ---
 router.get('/classroom/list', classroomImportController.getClassroomClassesList);
 router.post('/classroom/import', classroomImportController.importFromClassroom);
+
+// --- RUTAS DE IMPORTACIÓN CSV ---
+router.post('/csv/import', csvUpload.single('file'), csvImportController.importClassesFromCsv);
 
 router.get('/', classController.getAllClasses);
 router.get('/:id', classController.getClassById);

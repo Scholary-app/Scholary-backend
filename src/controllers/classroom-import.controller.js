@@ -3,6 +3,29 @@ import { v4 as uuidv4 } from 'uuid';
 
 const CLASSROOM_API_BASE = 'https://classroom.googleapis.com';
 
+// Extraer matrícula del email (ej: al071392@uacam.mx → 71392)
+function extractEnrollmentFromEmail(email) {
+  if (!email || typeof email !== 'string') return null;
+
+  const localPart = email.split('@')[0]?.trim() || '';
+  if (!localPart) return null;
+
+  // Remover prefijo "al0" o "al"
+  const withoutPrefix = localPart.replace(/^al0+/i, '').replace(/^al/i, '');
+  
+  // Extraer solo dígitos
+  const onlyDigits = withoutPrefix.replace(/\D/g, '');
+
+  if (onlyDigits.length > 0) {
+    // Remover ceros iniciales
+    const withoutLeadingZeros = onlyDigits.replace(/^0+/, '') || '0';
+    return withoutLeadingZeros;
+  }
+
+  // Si no hay dígitos, devolver la parte sin prefijo
+  return withoutPrefix || null;
+}
+
 /**
  * Hace un request a la API de Google Classroom con manejo robusto de errores.
  */
@@ -157,8 +180,21 @@ export const importFromClassroom = async (req, res, next) => {
           try {
             const studentEmail = classroomStudent.profile?.emailAddress;
             const studentName = classroomStudent.profile?.name?.fullName || 'Estudiante sin nombre';
-            const studentId = classroomStudent.userId || classroomStudent.profile?.id;
+            let studentId = classroomStudent.userId || classroomStudent.profile?.id;
             const photoUrl = classroomStudent.profile?.photoUrl || null;
+
+            // Intentar extraer la matrícula del email si studentId no está disponible
+            if (!studentId && studentEmail) {
+              const extractedEnrollment = extractEnrollmentFromEmail(studentEmail);
+              if (extractedEnrollment) {
+                studentId = extractedEnrollment;
+              }
+            }
+
+            // Si aún no hay studentId, generar uno
+            if (!studentId) {
+              studentId = `GC_${uuidv4().substring(0, 8)}`;
+            }
 
             // Crear estudiante si no existe
             let scholaryStudent = await prisma.student.findFirst({
