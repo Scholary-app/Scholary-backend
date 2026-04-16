@@ -143,7 +143,7 @@ export const importFromClassroom = async (req, res, next) => {
             data: {
               userId,
               name: classroomCourse.name,
-              subject: classroomCourse.section || 'Sin asignatura',
+              subject: null, // Google Classroom no proporciona asignatura separada
               description: description,
               group: classroomCourse.section || 'Grupo A',
               color: '#7C3AED' // Color por defecto
