@@ -189,12 +189,18 @@ export const importClassesFromCsv = async (req, res, next) => {
     // 1. Crear la clase
     let scholaryClass;
     try {
+      const trimmedGroup = group?.trim() || null;
+      const trimmedSubject = subject?.trim() || null;
+      
+      // Evitar duplicación: si son iguales, dejar subject como null
+      const finalSubject = trimmedGroup && trimmedSubject === trimmedGroup ? null : trimmedSubject;
+      
       scholaryClass = await prisma.class.create({
         data: {
           userId,
           name: className.trim(),
-          subject: subject?.trim() || null,
-          group: group?.trim() || null,
+          subject: finalSubject,
+          group: trimmedGroup,
           description: description?.trim() || null,
           color: '#7C3AED',
         },
